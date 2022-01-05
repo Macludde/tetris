@@ -12,6 +12,7 @@ export default class Board {
     constructor(ctx) {
         this.ctx = ctx;
         this.cells = [];
+
         for (let col = 0; col < Board.width; col++) {
             this.cells.push([])
             for (let row = 0; row < Board.height; row++) {
@@ -85,8 +86,11 @@ export default class Board {
         const diff = startRow-endRow
         for (let col = 0; col < Board.width; col++) {
             for (let i = startRow; i > diff; i--) {
-                this.cells[col][i].color = this.cells[col][i-1-diff].color;
+                this.cells[col][i].setColor(this.cells[col][i-1-diff].color);
                 this.cells[col][i].isOccupied = this.cells[col][i-1-diff].isOccupied;
+            }
+            for (let i = diff; i > 0; i--) {
+                this.cells[col][i].clear();
             }
         }
     }
