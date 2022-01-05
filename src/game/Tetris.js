@@ -1,7 +1,7 @@
-import Board from './game/Board.js';
-import Game from './game/Game.js';
+import Board from './Board.js';
+import Game from './Game.js';
 
-class Tetris {
+export default class Tetris {
     ctx;
     board;
     game;
@@ -26,15 +26,4 @@ class Tetris {
             canvasHolder.removeChild(this.canvas);
         }
     }
-}
-
-export function createTetris() {
-    return new Promise((resolve, reject) => {
-        let tetris;
-        const onDone = (result) => {
-            tetris.remove();
-            resolve(result)
-        }
-        tetris = new Tetris(false, onDone);
-    });
 }

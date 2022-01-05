@@ -1,4 +1,5 @@
 import Piece from './Piece.js';
+import Score from './Score.js';
 
 export default class Game {
     board;
@@ -7,44 +8,44 @@ export default class Game {
     currentPiece;
     shouldRotate;
     onGameEnd;
-    score;
+    score = 0;
+    level = 1;
+    linesCleared = 0;
     updateInterval;
-    keydownHandler;
 
     constructor(board, onGameEnd) {
         this.board = board;
         this.onGameEnd = onGameEnd;
-        this.score = 0;
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._setNextPiece();
         this._generateLaterPiece();
+        
 
         this.updateInterval = setInterval(() => {
             this.onUpdate();
-        }, 0)
-
-        this.keydownHandler = function (e) {
-            if (e.key.toLowerCase() === ' ') {
-                while (!this.onUpdate());
-            }
-            if (!e.repeat && (e.key.toLowerCase() === 'r' || e.key.toLowerCase() === 'w')) {
-                this._rotatePiece();
-            }
-            if (e.key.toLowerCase() === 's') {
-                this.onUpdate()
-            }
-            if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'left') {
-                this.currentPiece.moveHorizontal(true);
-            } else if (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'right') {
-                this.currentPiece.moveHorizontal();
-            }
-        }.bind(this)
-        document.addEventListener('keydown', this.keydownHandler);
+        }, 200)
     }
 
-    _rotatePiece() {
+    hardDrop()
+    {
+        while (!this.onUpdate())
+        {
+            this.score += Score.HARD_DROP;
+        }
+    }
+
+    softDrop() {
+        this.score += Score.SOFT_DROP;
+        this.onUpdate()
+    }
+
+    moveHorizontal(left) {
+        this.currentPiece.moveHorizontal(left);
+    }
+
+    rotatePiece() {
         this.currentPiece.rotate();
     }
 
@@ -56,11 +57,19 @@ export default class Game {
         this.currentPiece = new Piece(this.board, this.upcomingPieces.shift());
     }
 
+    _addClearedLines(lines) {
+        this.linesCleared += lines;
+        const linesRequired = Score.linesRequired(this.level)
+        if (this.linesCleared >= linesRequired) {
+            this.linesCleared -= linesRequired;
+            this.level++;
+        }
+    }
+
     onPlacement() {
         // TODO: Add score
         if (this.currentPiece.y < 0) {
             clearInterval(this.updateInterval);
-            document.removeEventListener('keydown', this.keydownHandler);
             this.onGameEnd(this.score);
             return;
         }
@@ -86,7 +95,7 @@ export default class Game {
 
     onUpdate() {
         // DEBUG LINE
-        // this._rotatePiece()
+        // this.rotatePiece()
         if (this.currentPiece.moveDown()) {
             this.onPlacement();
             return true;
