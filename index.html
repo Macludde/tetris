@@ -7,9 +7,15 @@
     <title>Tetris</title>
 </head>
 <body>
-    <div>
-        <canvas id="canvas" />
+    <div id="canvas-holder">
     </div>
-    <script src="main.js"></script>
+    <script type="module">
+        import { createTetris } from './src/Tetris.js';
+
+        function start() {
+            createTetris()
+        }
+        start()
+    </script>
 </body>
 </html>
