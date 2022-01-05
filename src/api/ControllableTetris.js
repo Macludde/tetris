@@ -1,4 +1,4 @@
-import Tetris from "../game/Tetris";
+import Tetris from "../game/Tetris.js";
 
 export default class ControllableTetris extends Tetris {
 
@@ -11,7 +11,7 @@ export default class ControllableTetris extends Tetris {
     }
 
     moveRight() {
-        this.game.moveHorizontal(true);
+        this.game.moveHorizontal(false);
     }
 
     softDrop() {

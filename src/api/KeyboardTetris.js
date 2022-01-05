@@ -1,34 +1,33 @@
-import ControllableTetris from "./ControllableTetris";
+import ControllableTetris from "./ControllableTetris.js";
 
 export default class KeyboardTetris extends ControllableTetris {
     keydownHandler;
     onGameEnd;
 
     constructor(shouldRender, onGameEnd) {
-        this.super(shouldRender, this.onEnd);
-        
-        this.keydownHandler = function (e) {
+        super(shouldRender, (result) => {
+            this.onGameEnd(result);
+            document.removeEventListener('keydown', this.keydownHandler);
+        });
+        this.onGameEnd = onGameEnd;
+
+        this.keydownHandler = (e) => {
             if (e.key.toLowerCase() === ' ') {
                 this.hardDrop();
             }
             if (!e.repeat && (e.key.toLowerCase() === 'r' || e.key.toLowerCase() === 'w')) {
-                this.rotatePiece();
+                this.rotate();
             }
             if (e.key.toLowerCase() === 's') {
                 this.softDrop();
             }
             if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'left') {
-                this.moveHorizontal(true);
+                this.moveLeft();
             } else if (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'right') {
-                this.moveHorizontal();
+                this.moveRight();
             }
-        }.bind(this)
-        document.addEventListener('keydown', this.keydownHandler);
-    }
-
-    onEnd(result) {
-        document.removeEventListener('keydown', this.keydownHandler);
-        this.onGameEnd(result);
+        }
+        document.addEventListener('keydown', this.keydownHandler.bind(this));
     }
     
 }

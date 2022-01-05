@@ -30,8 +30,13 @@ export default class Piece {
         this._draw();
     }
 
-    getPositions() {
+    _getPositions() {
         const positions = this.shape[this.rotation].map(pos => ([this.x+pos[0], this.y+pos[1]]));
+        return positions;
+    }
+
+    getPositions() {
+        const positions = this._getPositions();
         if (this.y < 0) {
             return positions.filter(pos => pos[1] >= 0);
         }
@@ -53,9 +58,9 @@ export default class Piece {
      * @returns true if move was successful
      */
     moveHorizontal(left=false) {
-        const upcomingPositions = this.getPositions().map(pos => ([pos[0] + (left ? -1 : 1), pos[1]]))
+        const upcomingPositions = this._getPositions().map(pos => ([pos[0] + (left ? -1 : 1), pos[1]]))
         if (upcomingPositions.some(pos => 
-            pos[0] < 0 || pos[0] >= Board.width || this.board.isCellOccupied(pos[0],pos[1])
+            pos[0] < 0 || pos[0] >= Board.width || (pos[1] >= 0 && this.board.isCellOccupied(pos[0],pos[1]))
         )) {
             return false;
         }

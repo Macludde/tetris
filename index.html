@@ -5,17 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tetris</title>
+
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div id="canvas-holder">
     </div>
     <script type="module">
-        import { createTetris } from './src/Tetris.js';
+        import KeyboardTetris from './src/api/KeyboardTetris.js';
+        import RandomTetris from './src/api/RandomTetris.js';
+        
+        async function start() {
+            while (true) {
+                let promises = [];
+                for (let i = 0; i < 20; i++) {
+                    promises.push(new Promise((resolve, reject) => {
+                        const onEnd = (result) => {
+                            resolve(result);
+                        }
+                        const tetris = new RandomTetris(true, onEnd);
+                    }));
+                }
+                const results = await Promise.all(promises);
+                console.log(results.sort((a, b) => {
+                    return b- a;
+                })[0]);
 
-        function start() {
-            createTetris()
+            }
+            // const tetris = new KeyboardTetris(true, console.log);
         }
-        start()
+
+        start();
     </script>
 </body>
 </html>
