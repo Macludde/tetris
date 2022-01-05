@@ -5,25 +5,27 @@ export default class Tetris {
     ctx;
     board;
     game;
-    canvas;
 
     constructor(shouldRender, onGameEnd) {
+        let canvas;
         if (shouldRender) {
             const canvasHolder = document.getElementById("canvas-holder");
-            this.canvas = document.createElement("canvas");
-            this.canvas.width = Board.pixelWidth;
-            this.canvas.height = Board.pixelHeight;
-            canvasHolder.appendChild(this.canvas);
-            this.ctx = this.canvas.getContext('2d');
+            canvas = document.createElement("canvas");
+            canvas.width = Board.pixelWidth;
+            canvas.height = Board.pixelHeight;
+            canvasHolder.appendChild(canvas);
+            this.ctx = canvas.getContext('2d');
         }
-        this.board = new Board(this.ctx);
-        this.game = new Game(this.board, onGameEnd);
-    }
 
-    remove() {
-        if (this.canvas) {
-            const canvasHolder = document.getElementById("canvas-holder");
-            canvasHolder.removeChild(this.canvas);
+        const onEnd = (result) => {
+            if (canvas) {
+                const canvasHolder = document.getElementById("canvas-holder");
+                canvasHolder.removeChild(canvas);
+            }
+            onGameEnd(result);
         }
+
+        this.board = new Board(this.ctx);
+        this.game = new Game(this.board, onEnd.bind(this));
     }
 }

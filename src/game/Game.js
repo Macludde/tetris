@@ -2,16 +2,11 @@ import Piece from './Piece.js';
 import Score from './Score.js';
 
 export default class Game {
-    board;
     score = 0; // Keeps track of users score
     upcomingPieces = []; // Array of next 3 piece indices
     currentPiece;
-    shouldRotate;
-    onGameEnd;
-    score = 0;
     level = 1;
     linesCleared = 0;
-    updateInterval;
 
     constructor(board, onGameEnd) {
         this.board = board;
@@ -21,11 +16,10 @@ export default class Game {
         this._generateLaterPiece();
         this._setNextPiece();
         this._generateLaterPiece();
+        this.isRunning = true;
         
 
-        this.updateInterval = setInterval(() => {
-            this.onUpdate();
-        }, 200)
+        this.updateInterval = setInterval(this.onUpdate.bind(this), 200)
     }
 
     hardDrop()
@@ -66,11 +60,17 @@ export default class Game {
         }
     }
 
+    endGame() {
+        clearInterval(this.updateInterval);
+        this.updateInterval = undefined;
+        this.isRunning = false;
+        this.onGameEnd(this.score);
+    }
+
     onPlacement() {
         // TODO: Add score
         if (this.currentPiece.y < 0) {
-            clearInterval(this.updateInterval);
-            this.onGameEnd(this.score);
+            this.endGame();
             return;
         }
         const finalPositions = this.currentPiece.getPositions();
@@ -94,6 +94,7 @@ export default class Game {
     }
 
     onUpdate() {
+        if (!this.isRunning) return;
         // DEBUG LINE
         // this.rotatePiece()
         if (this.currentPiece.moveDown()) {

@@ -1,6 +1,6 @@
 export default class Cell {
 
-    static size = 25;
+    static size = 10;
     static DEFAULT_COLOR = '#ddd';
     static STROKE_COLOR = '#ccc';
 
