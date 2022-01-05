@@ -13,7 +13,9 @@ export default class Cell {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
-        this.clear()
+        if (ctx !== undefined) {
+            this.clear()
+        }
     }
 
     /**

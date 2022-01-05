@@ -12,7 +12,9 @@ export default class Board {
     constructor(ctx) {
         this.ctx = ctx;
         this.cells = [];
-        this.ctx.strokeStyle = Cell.STROKE_COLOR;
+        if (this.ctx !== undefined) {
+            this.ctx.strokeStyle = Cell.STROKE_COLOR;
+        }
 
         for (let col = 0; col < Board.width; col++) {
             this.cells.push([])
@@ -20,6 +22,10 @@ export default class Board {
                 this.cells[col].push(new Cell(ctx, col*Cell.size, row*Cell.size))
             }
         }
+    }
+
+    _shouldDraw() {
+        return this.ctx !== undefined;
     }
 
     clear(x,y) {
@@ -31,14 +37,18 @@ export default class Board {
     }
 
     clearMany(positions) {
-        for (let pos of positions) {
-            this.clear(pos[0], pos[1]);
+        if (this._shouldDraw()) {
+            for (let pos of positions) {
+                this.clear(pos[0], pos[1]);
+            }
         }
     }
 
     drawMany(positions, color) {
-        for (let pos of positions) {
-            this.draw(pos[0],pos[1], color);
+        if (this._shouldDraw()) {
+            for (let pos of positions) {
+                this.draw(pos[0],pos[1], color);
+            }
         }
     }
 
