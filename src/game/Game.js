@@ -20,15 +20,19 @@ export default class Game {
         }, 400)
 
         document.addEventListener('keydown', function (e) {
+            if (e.key.toLowerCase() === ' ') {
+                while (!this.onUpdate());
+            }
             if (!e.repeat && (e.key.toLowerCase() === 'r' || e.key.toLowerCase() === 'w')) {
                 this._rotatePiece();
+            }
+            if (e.key.toLowerCase() === 's') {
+                this.onUpdate()
             }
             if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'left') {
                 this.currentPiece.moveHorizontal(true);
             } else if (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'right') {
                 this.currentPiece.moveHorizontal();
-            } else if (e.key.toLowerCase() === 's') {
-                this.onUpdate()
             }
         }.bind(this));   
     }
@@ -54,13 +58,12 @@ export default class Game {
                                     .filter((row, i, arr) => arr.indexOf(row) === i)
                                     .filter((row) => this.board.isRowFull(row))
                                     .sort((a, b) => b - a);
-        console.log(completedRows);
         if (completedRows.length > 0) {
             // TODO: Add score
             if (completedRows.length === 1) {
                 this.board.clearRow(completedRows[0]);
             } else {
-                this.board.clearManyRows(completedRows[0], completedRows[1]);
+                this.board.clearManyRows(completedRows[0], completedRows[completedRows.length-1]);
             }
         }
         this._setNextPiece();
@@ -70,6 +73,8 @@ export default class Game {
     onUpdate() {
         if (this.currentPiece.moveDown()) {
             this.onPlacement();
+            return true;
         }
+        return false;
     }
 }
