@@ -6,20 +6,26 @@ export default class Game {
     upcomingPieces = []; // Array of next 3 piece indices
     currentPiece;
     shouldRotate;
+    onGameEnd;
+    score;
+    updateInterval;
+    keydownHandler;
 
-    constructor(board) {
+    constructor(board, onGameEnd) {
         this.board = board;
+        this.onGameEnd = onGameEnd;
+        this.score = 0;
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._setNextPiece();
         this._generateLaterPiece();
 
-        setInterval(() => {
+        this.updateInterval = setInterval(() => {
             this.onUpdate();
-        }, 400)
+        }, 0)
 
-        document.addEventListener('keydown', function (e) {
+        this.keydownHandler = function (e) {
             if (e.key.toLowerCase() === ' ') {
                 while (!this.onUpdate());
             }
@@ -34,7 +40,8 @@ export default class Game {
             } else if (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'right') {
                 this.currentPiece.moveHorizontal();
             }
-        }.bind(this));   
+        }.bind(this)
+        document.addEventListener('keydown', this.keydownHandler);
     }
 
     _rotatePiece() {
@@ -51,13 +58,20 @@ export default class Game {
 
     onPlacement() {
         // TODO: Add score
+        if (this.currentPiece.y < 0) {
+            clearInterval(this.updateInterval);
+            document.removeEventListener('keydown', this.keydownHandler);
+            this.onGameEnd(this.score);
+            return;
+        }
         const finalPositions = this.currentPiece.getPositions();
         this.board.setCellsOccupied(finalPositions);
-        const completedRows = finalPositions
+        const updatedRows = finalPositions
                                     .map(pos => pos[1])
                                     .filter((row, i, arr) => arr.indexOf(row) === i)
-                                    .filter((row) => this.board.isRowFull(row))
-                                    .sort((a, b) => b - a);
+        const completedRows = updatedRows
+                                .filter((row) => this.board.isRowFull(row))
+                                .sort((a, b) => b - a);
         if (completedRows.length > 0) {
             // TODO: Add score
             if (completedRows.length === 1) {
@@ -71,6 +85,8 @@ export default class Game {
     }
 
     onUpdate() {
+        // DEBUG LINE
+        // this._rotatePiece()
         if (this.currentPiece.moveDown()) {
             this.onPlacement();
             return true;

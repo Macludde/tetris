@@ -15,7 +15,13 @@ export default class Piece {
 
     constructor(board, pieceIndex) {
         const piece = Piece.PIECES[pieceIndex];
-        this.x = Board.width/2;
+        this.x = Board.width/2 - 1;
+        // DEBUG LINE
+        /* if (piece.name === 'T-block') {
+            this.x = Math.floor(Math.random()*(Board.width-3))+1;
+        } else {
+            this.x = Math.floor(Math.random()*(Board.width-1));
+        } */
         this.y = -piece.startingHeight;
         this.board = board;
         this.name = piece.name;
@@ -81,7 +87,7 @@ export default class Piece {
     rotate() {
         const newRotation = (this.rotation + 1) % this.shape.length;
         let extraMovementNecessary = [0,0]
-        let upcomingPositions = this.shape[newRotation].map(pos => ([this.x+pos[0], this.y+pos[1]]));
+        let upcomingPositions = this.shape[newRotation].map(pos => ([this.x+pos[0], this.y+pos[1]]))
         if (upcomingPositions.some(pos => 
                 pos[0] < 0 || pos[0] >= Board.width || pos[1] >= Board.height
         )) {
@@ -108,7 +114,7 @@ export default class Piece {
             upcomingPositions = upcomingPositions.map(pos => ([pos[0] - xDiff, pos[1] - yDiff]));
             extraMovementNecessary = [-xDiff, -yDiff]
         }
-        if (upcomingPositions.some(pos => this.board.isCellOccupied(pos[0],pos[1]))) {
+        if (upcomingPositions.filter(pos => pos[1] >= 0).some(pos => this.board.isCellOccupied(pos[0],pos[1]))) {
                  return false;
         }
         this._clear()
