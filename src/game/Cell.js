@@ -1,8 +1,8 @@
 export default class Cell {
 
     static size = 25;
-    static DEFAULT_COLOR = '#aaa';
-    static STROKE_COLOR = '#444';
+    static DEFAULT_COLOR = '#ddd';
+    static STROKE_COLOR = '#ccc';
 
     x;
     y;
@@ -22,6 +22,7 @@ export default class Cell {
     _draw() {
         this.ctx.fillStyle = this.color;
         this.ctx.fillRect(this.x, this.y, Cell.size, Cell.size);
+        this.ctx.strokeRect(this.x, this.y, Cell.size, Cell.size);
     }
 
 
@@ -32,8 +33,6 @@ export default class Cell {
     setColor(color) {
         this.color = color;
         this._draw();
-        this.ctx.strokeStyle = Cell.DEFAULT_COLOR;
-        this.ctx.strokeRect(this.x, this.y, Cell.size, Cell.size);
     }
 
     setOccupied() {

@@ -12,6 +12,7 @@ export default class Board {
     constructor(ctx) {
         this.ctx = ctx;
         this.cells = [];
+        this.ctx.strokeStyle = Cell.STROKE_COLOR;
 
         for (let col = 0; col < Board.width; col++) {
             this.cells.push([])
