@@ -48,10 +48,9 @@ export default class Piece {
      */
     moveHorizontal(left=false) {
         const upcomingPositions = this.getPositions().map(pos => ([pos[0] + (left ? -1 : 1), pos[1]]))
-        if (upcomingPositions.some(pos => {
-            return pos[0] < 0 || pos[0] >= Board.width || this.board.isCellOccupied(pos[0],pos[1])
-        })) {
-            console.log(upcomingPositions)
+        if (upcomingPositions.some(pos => 
+            pos[0] < 0 || pos[0] >= Board.width || this.board.isCellOccupied(pos[0],pos[1])
+        )) {
             return false;
         }
         this._clear()
@@ -66,9 +65,9 @@ export default class Piece {
      */
     moveDown() {
         const upcomingPositions = this.getPositions().map(pos => ([pos[0], pos[1]+1]))
-        if (upcomingPositions.some(pos => {
-            return pos[1] >= Board.height || this.board.isCellOccupied(pos[0],pos[1]) 
-        })) {
+        if (upcomingPositions.some(pos =>
+            pos[1] >= Board.height || this.board.isCellOccupied(pos[0],pos[1]) 
+        )) {
             // Has landed
             return true;
         }
@@ -80,8 +79,42 @@ export default class Piece {
     }
 
     rotate() {
+        const newRotation = (this.rotation + 1) % this.shape.length;
+        let extraMovementNecessary = [0,0]
+        let upcomingPositions = this.shape[newRotation].map(pos => ([this.x+pos[0], this.y+pos[1]]));
+        if (upcomingPositions.some(pos => 
+                pos[0] < 0 || pos[0] >= Board.width || pos[1] >= Board.height
+        )) {
+            let lowestX = 0, 
+                highestX = Board.width-1, 
+                highestY = Board.height-1;
+            upcomingPositions.forEach(pos => {
+                if (pos[0] < lowestX ) {
+                    lowestX = pos[0];
+                } else if (pos[0] > highestX) {
+                    highestX = pos[0];
+                } 
+                if (pos[1] > highestY) {
+                    highestY = pos[1];
+                }
+            })
+            let xDiff = 0;
+            if (lowestX < 0) {
+                xDiff = lowestX;
+            } else if (highestX >= Board.width) {
+                xDiff = highestX - Board.width + 1;
+            }
+            const yDiff = highestY >= Board.height ? highestY - Board.height + 1 : 0;
+            upcomingPositions = upcomingPositions.map(pos => ([pos[0] - xDiff, pos[1] - yDiff]));
+            extraMovementNecessary = [-xDiff, -yDiff]
+        }
+        if (upcomingPositions.some(pos => this.board.isCellOccupied(pos[0],pos[1]))) {
+                 return false;
+        }
         this._clear()
-        this.rotation = (this.rotation + 1) % this.shape.length;
+        this.rotation = newRotation
+        this.x += extraMovementNecessary[0];
+        this.y += extraMovementNecessary[1];
         this._draw()
     }
 
