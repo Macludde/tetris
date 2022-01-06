@@ -38,12 +38,7 @@ export default class AI {
             this.tetri.push(new AITetris(true));
         }
 
-        for (let g = 0; g < GENERATIONS; g++) {
-            // for (let i = 0; i < POP_SIZE; i++) {
-            //     this.tetri[i].setup();
-            // }
-            this.iteration(g);
-        }
+        this.iteration(0)
     }
 
     iteration(number) {
@@ -54,7 +49,7 @@ export default class AI {
             const maxOutputIndex = outputs.indexOf(Math.max(...outputs));
             this.tetri[i].doAction(maxOutputIndex);
         }
-        const isFinished = this.tetri.every(t => t.score !== undefined);
+        const isFinished = this.tetri.every(t => t.result !== undefined);
         if (isFinished) {
             console.log(`Generation ${number}`);
            
@@ -63,6 +58,9 @@ export default class AI {
                 this.neat.population[i].fitness = score;
             }
 
+            for (let i = 0; i < POP_SIZE; i++) {
+                this.tetri[i].setup();
+            }
             this.neat.doGeneration();
         }
         setTimeout(() => {
