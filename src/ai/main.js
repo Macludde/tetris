@@ -1,12 +1,13 @@
 import AITetris from '../api/AITetris.js'
 import Board from '../game/Board.js'
-import { Population } from './NEAT/NEAT.js';
-
+import NEAT from './NEAT/NEAT.js'
+import activation from './NEAT/ActivationFunction.js'
+import crossover from './NEAT/Crossover.js'
+import mutate from './NEAT/Mutate.js'
 
 
 const MUTATION_RATE = 0.9;
 const POP_SIZE = 10;
-const GENERATIONS = 300;
 
 /**
  * ACTIONS:
@@ -27,46 +28,52 @@ const GENERATIONS = 300;
 export default class AI {
 
     constructor() {
-        this.neat = Population({
-            inputs: 4+Board.cellCount,
-            outputs: 6,
-            popSize: POP_SIZE,
-        })
+        const config = {
+            model: [
+                { nodeCount: 4+Board.width*Board.height, type: 'input' },
+                { nodeCount: 6, type: 'output', activationfunc: activation.SOFTMAX }
+            ],
+            mutationRate: MUTATION_RATE,
+            crossoverMethod: crossover.RANDOM,
+            mutationMethod: mutate.RANDOM,
+            populationSize: POP_SIZE
+        }
+        this.neat = new NEAT(config);
 
         this.tetri = [];
         for (let i = 0; i < POP_SIZE; i++) {
             this.tetri.push(new AITetris(true));
         }
 
-        for (let g = 0; g < GENERATIONS; g++) {
-            // for (let i = 0; i < POP_SIZE; i++) {
-            //     this.tetri[i].setup();
-            // }
-            this.iteration(g);
-        }
+        this.iteration(0)
     }
 
     iteration(number) {
         for (let i = 0; i < POP_SIZE; i++) {
-            const inputs = this.tetri[i].getInputs();
-            const outputs = this.neat.population[i].feedForward(inputs);
-            // console.log(outputs);
-            const maxOutputIndex = outputs.indexOf(Math.max(...outputs));
-            this.tetri[i].doAction(maxOutputIndex);
+            this.neat.setInputs(this.tetri[i].getInputs(), i);
         }
-        const isFinished = this.tetri.every(t => t.score !== undefined);
-        if (isFinished) {
-            console.log(`Generation ${number}`);
-           
+        this.neat.feedForward();
+        const decisions = this.neat.getDecisions();
+        for (let i = 0; i < POP_SIZE; i++) {
+            // get index of largest value
+            this.tetri[i].doAction(decisions[i]);
+        }
+        let finish = this.tetri.every(tetri => tetri.result !== undefined);
+        if (finish) {
+            console.log('FINISH ' + number);
+            this.neat.feedForward();
             for (let i = 0; i < POP_SIZE; i++) {
-                const score = this.tetri[i].score;
-                this.neat.population[i].fitness = score;
+                this.neat.setFitness(this.tetri[i].result, i);
             }
-
-            this.neat.doGeneration();
+            this.neat.doGen();
+            for (let i = 0; i < POP_SIZE; i++) {
+                this.tetri[i].setup();
+            }
+            this.iteration(number+1);
+        } else {
+            setTimeout(() => {
+                this.iteration(number)
+            }, 10);
         }
-        setTimeout(() => {
-            this.iteration(number);
-        }, 100);
     }
 }

@@ -1,7 +1,7 @@
 import Piece from './Piece.js';
 import Score from './Score.js';
 
-const GAME_FRAME_DELAY = 20;
+const GAME_FRAME_DELAY = 50;
 
 export default class Game {
     score = 0; // Keeps track of users score

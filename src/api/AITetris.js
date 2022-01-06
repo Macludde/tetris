@@ -1,12 +1,12 @@
 import pieces from "../game/pieces.js";
-import Tetris from "../game/Tetris.js";
+import ControllableTetris from "./ControllableTetris.js";
 
 const namesToIndices = {}
 for (let i = 0; i < pieces.length; i++) {
     namesToIndices[pieces[i].name] = i;
 }
 
-export default class AITetris extends Tetris {
+export default class AITetris extends ControllableTetris {
 
     constructor(shouldRender) {
         super(shouldRender, (result) => {
@@ -37,6 +37,7 @@ export default class AITetris extends Tetris {
     }
 
     doAction(actionIndex) {
+        if (this.result !== undefined) return;
         switch (actionIndex) {
             case 0:
                 break;
