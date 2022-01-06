@@ -2,7 +2,8 @@ import Cell from './Cell.js';
 
 export default class Board {
     static width = 10;
-    static height = 15;
+    static height = 20;
+    static cellCount = this.width*this.height;
     static pixelWidth = this.width*Cell.size;
     static pixelHeight = this.height*Cell.size;
 

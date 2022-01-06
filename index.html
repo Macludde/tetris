@@ -7,35 +7,14 @@
     <title>Tetris</title>
 
     <link rel="stylesheet" href="style.css" />
-</head>
+    </head>
 <body>
     <div id="canvas-holder">
     </div>
     <script type="module">
-        import KeyboardTetris from './src/api/KeyboardTetris.js';
-        import RandomTetris from './src/api/RandomTetris.js';
-        
-        async function start() {
-            while (true) {
-                let promises = [];
-                for (let i = 0; i < 100; i++) {
-                    promises.push(new Promise((resolve, reject) => {
-                        const onEnd = (result) => {
-                            resolve(result);
-                        }
-                        const tetris = new RandomTetris(true, onEnd);
-                    }));
-                }
-                const results = await Promise.all(promises);
-                console.log(results.sort((a, b) => {
-                    return b- a;
-                })[0]);
+        import AI from './src/ai/main.js';
 
-            }
-            // const tetris = new KeyboardTetris(true, console.log);
-        }
-
-        start();
+        const ai = new AI();
     </script>
 </body>
 </html>
