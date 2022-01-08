@@ -94,20 +94,20 @@ export default class Piece {
         let extraMovementNecessary = [0,0]
         let upcomingPositions = this.shape[newRotation].map(pos => ([this.x+pos[0], this.y+pos[1]]))
         if (upcomingPositions.some(pos => 
-                pos[0] < 0 || pos[0] >= Board.width || pos[1] >= Board.height
+                pos[0] < 0 || pos[0] >= Board.width
         )) {
             let lowestX = 0, 
-                highestX = Board.width-1, 
-                highestY = Board.height-1;
+                highestX = Board.width-1;
+                // highestY = Board.height-1;
             upcomingPositions.forEach(pos => {
                 if (pos[0] < lowestX ) {
                     lowestX = pos[0];
                 } else if (pos[0] > highestX) {
                     highestX = pos[0];
                 } 
-                if (pos[1] > highestY) {
-                    highestY = pos[1];
-                }
+                // if (pos[1] > highestY) {
+                //     highestY = pos[1];
+                // }
             })
             let xDiff = 0;
             if (lowestX < 0) {
@@ -115,11 +115,11 @@ export default class Piece {
             } else if (highestX >= Board.width) {
                 xDiff = highestX - Board.width + 1;
             }
-            const yDiff = highestY >= Board.height ? highestY - Board.height + 1 : 0;
-            upcomingPositions = upcomingPositions.map(pos => ([pos[0] - xDiff, pos[1] - yDiff]));
-            extraMovementNecessary = [-xDiff, -yDiff]
+            // const yDiff = highestY >= Board.height ? highestY - Board.height + 1 : 0;
+            upcomingPositions = upcomingPositions.map(pos => ([pos[0] - xDiff, 0/*  pos[1] - yDiff */]));
+            extraMovementNecessary = [-xDiff, 0/* -yDiff */]
         }
-        if (upcomingPositions.filter(pos => pos[1] >= 0).some(pos => this.board.isCellOccupied(pos[0],pos[1]))) {
+        if (upcomingPositions.filter(pos => pos[1] >= 0).some(pos => pos[1] >= Board.height || this.board.isCellOccupied(pos[0],pos[1]))) {
                  return false;
         }
         this._clear()

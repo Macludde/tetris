@@ -25,23 +25,24 @@ function Creature(model) {
 	}
 
 	this.setFlattenedGenes = function (genes) { // Sets an array of weights as the creature's genes.
+		let start = 0;
 		for (let i = 0; i < this.network.layers.length - 1; i++) {
 			for (let w = 0; w < this.network.layers[i].nodes.length; w++) {
-				for (let e = 0; e < this.network.layers[i].nodes[w].weights.length; e++) {
-					this.network.layers[i].nodes[w].weights[e] = genes[0];
-					genes.splice(0, 1);
-				}
+				this.network.layers[i].nodes[w].weights = 
+					genes.slice(start, start + this.network.layers[i].nodes[w].weights.length);
 			}
 
-			for (let w = 0; w < this.network.layers[i].bias.weights.length; w++) {
-				this.network.layers[i].bias.weights[w] = genes[0];
-				genes.splice(0, 1);
-			}
+			this.network.layers[i].bias.weights = 
+				genes.slice(start, start + this.network.layers[i].bias.weights.length)
 		}
 	}
 
 	this.feedForward = function () { // Feeds forward the creature's network.
 		this.network.feedForward();
+	}
+
+	this.getWeights = function() {
+		return this.network.getWeights();
 	}
 
 	this.setInputs = function (inputs) { // Sets the inputs of the creature.

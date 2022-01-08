@@ -21,12 +21,15 @@ export default class AITetris extends ControllableTetris {
     }
 
     getInputs() {
-        const xPos = this.game.currentPiece.x;
-        const yPos = this.game.currentPiece.y;
+        const inputs = new Array(12).fill(0)
+        inputs[0] = this.game.currentPiece.x;
+        inputs[1] = this.game.currentPiece.y;
         const currentPiece = namesToIndices[this.game.currentPiece.name];
         const rotation = this.game.currentPiece.rotation;
+        inputs[2+currentPiece] = 1;
+        inputs[8+rotation] = 1;
         const cells = this.getCellStates();
-        return [xPos, yPos, currentPiece, rotation, ...cells];
+        return [...inputs, ...cells];
     }
 
     getCellStates() {

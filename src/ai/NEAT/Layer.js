@@ -20,6 +20,11 @@ function Layer(nodeCount, type, activationfunc) { // A layer component of a netw
 		if (this.bias !== undefined) this.bias.initWeights(count);
 	}
 
+	this.getWeights = function () { // Returns all weights of the layer as 3d matrix
+		const bias = this.bias.weights.map(weight => weight*this.bias.value)
+		return [bias, ...this.nodes.map(node => node.weights)]
+	}
+
 	this.feedForward = function (layer) { // Feeds forward the layers values to the specified layer.
 		for (let i = 0; i < this.bias.weights.length; i++) {
 			layer.nodes[i].value = 0;

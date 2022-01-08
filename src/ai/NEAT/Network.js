@@ -22,6 +22,10 @@ function Network(model) { // Neural Network.
 			this.layers[i].feedForward(this.layers[i + 1]);
 		}
 	}
+
+	this.getWeights = function() {
+		return this.layers.slice(0,-1).map(layer => layer.getWeights());
+	}
 }
 
 export default Network;

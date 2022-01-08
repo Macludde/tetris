@@ -1,14 +1,13 @@
 import Piece from './Piece.js';
 import Score from './Score.js';
 
-const GAME_FRAME_DELAY = 50;
-
 export default class Game {
     score = 0; // Keeps track of users score
     upcomingPieces = []; // Array of next 3 piece indices
     currentPiece;
     level = 1;
     linesCleared = 0;
+    static GAME_FRAME_DELAY = 40;
 
     constructor(board, onGameEnd) {
         this.board = board;
@@ -21,7 +20,7 @@ export default class Game {
         this.isRunning = true;
         
 
-        this.updateInterval = setInterval(this.onUpdate.bind(this), GAME_FRAME_DELAY)
+        this.updateInterval = setInterval(this.onUpdate.bind(this), Game.GAME_FRAME_DELAY)
     }
 
     hardDrop()

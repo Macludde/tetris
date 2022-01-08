@@ -47,7 +47,7 @@ function NEAT(config) {
 			this.oldCreatures = Object.assign([], this.creatures);
 			let parentx = this.pickCreature();
 			let parenty = this.pickCreature();
-
+			
 			let genes = this.crossoverMethod(parentx.flattenGenes(), parenty.flattenGenes());
 			this.creatures[i].setFlattenedGenes(genes);
 		}
@@ -82,10 +82,16 @@ function NEAT(config) {
 		}
 	}
 
+	this.getWeights = function() {
+		return this.creatures.map(creature => creature.getWeights());
+	}
+
 	this.doGen = function () { // Does 1 fast generation with crossover and mutation.
+		console.time('doGen');
 		this.crossover();
 		this.mutate();
 		this.generation++;
+		console.timeEnd('doGen');
 		console.log('Generation: ' + this.generation);
 	}
 
