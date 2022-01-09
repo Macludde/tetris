@@ -6,15 +6,20 @@ export default class RandomTetris extends ControllableTetris {
     constructor(shouldRender, onGameEnd) {
         super(shouldRender, (result) => {
             clearInterval(this.interval);
-            onGameEnd(result);
+            onGameEnd?.(result);
         });
 
-        this.interval = setInterval(this.doAction.bind(this), 10);
         
     }
 
+    setup() {
+        this.interval = setInterval(this.doAction.bind(this), 10);
+        super.setup();
+    }
+
     doAction() {
-        const action = Math.floor(Math.random() * 5);
+        // const action = Math.floor(Math.random() * 5);
+        const action = 4;
         switch (action) {
             case 0:
                 this.rotate();
