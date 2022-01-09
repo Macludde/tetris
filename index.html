@@ -15,8 +15,25 @@
     </div>
     <script type="module">
         import AI from './src/ai/main.js';
+        import Random from './src/api/randomTetris.js';
 
         const ai = new AI();
+        /* const run = async () => {
+            console.time(`game`);
+            let promises = [];
+            for (let i = 0; i < 1000; i++) {
+                promises.push(new Promise((res) => {
+                    let random;
+                    random = new Random(true, (result) => {
+                        res(result);
+                    })
+                }));
+            }
+            await Promise.all(promises);
+            console.timeEnd(`game`);
+        }
+
+        run(); */
     </script>
 </body>
 </html>

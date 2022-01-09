@@ -68,35 +68,6 @@ export default class AI {
                 output: [layerSizes[layer]]
             })
         }
-        const matrixMultFunctions = new Array(layerSizes.length-1).fill(0).map((_, i) => getMatrixMult(i+1));
-        // this.feedForward = this.gpu.createKernel(function (network, inputs) {
-        //     multiplyMatrix(
-        //         multiplyMatrix(
-        //             multiplyMatrix(network, inputs) /* Hidden layer 1 */
-        //         ) /* Hidden layer  2 */
-        //     ) /* Output layer */
-        // }).setDynamicOutput(true);
-
-        
-        // this.getActions = this.gpu.createKernel(function (inputs, network) {
-        //     const input = inputs[this.thread.x];
-        //     const network = networks[this.thread.x];
-        //     let currentValues = input;
-        //     for (let n = 0; n < network.length; n++) {
-        //         let newValues = [];
-        //         for (let i = 0; i < network[n][0].length; i++) {
-        //             let sum = network[n][0][i]; // Bias
-        //             for (let j = 1; j < network[n].length; j++) {
-        //                 sum += network[n][j][i] * currentValues[j-1];
-        //             }
-        //             const sigmoid = (1 / (1 + Math.exp(-sum)))
-        //             newValues.push(sigmoid); // ISSUE
-        //         }
-        //         currentValues = newValues;
-        //     }
-            
-        //     return currentValues
-        // }).setOutput([POP_SIZE])
 
         this.getActions = (network, inputs) => {
             let currentValues = inputs;
@@ -125,13 +96,6 @@ export default class AI {
     }
 
     async iteration(number) {
-        // console.time('iteration');
-
-
-        // const results = this.getActions(this.neat.getWeights()[0], this.tetri[0].getInputs());
-        // const results = this.getAllActions(this.neat.getWeights(), this.tetri.map(tetris => tetris.getInputs()));
-
-
         for (let i = 0; i < POP_SIZE; i++) {
             this.neat.setInputs(this.tetri[i].getInputs(), i);
         }
@@ -148,10 +112,26 @@ export default class AI {
         if (finish) {
             console.timeEnd('iteration');
             console.log('FINISH ' + number);
+            let bestScore = 0;
+            let highestLevel = 0;
             for (let i = 0; i < POP_SIZE; i++) {
-                this.neat.setFitness(this.tetri[i].result, i);
+                const level = this.tetri[i].game.level;
+                const fitness = this.tetri[i].result+(level-1)*1000
+                if (this.tetri[i].result > bestScore) {
+                    bestScore = this.tetri[i].result;
+                }
+                if (level > highestLevel) {
+                    highestLevel = level;
+                }
+                this.tetri[i].setup();
+                this.neat.setFitness(fitness, i);
             }
+            console.log(bestScore, highestLevel);
             this.neat.doGen();
+            if (number % 100 === 0) {
+                const data = this.neat.export();
+                console.log(JSON.stringify(data));
+            }
             for (let i = 0; i < POP_SIZE; i++) {
                 this.tetri[i].setup();
             }
@@ -162,27 +142,5 @@ export default class AI {
                 this.iteration(number)
             }, Game.GAME_FRAME_DELAY/2);
         }
-        // console.log('FINISH ' + number);
-        // let bestScore = 0;
-        // let highestLevel = 0;
-        // for (let i = 0; i < POP_SIZE; i++) {
-        //     const level = this.tetri[i].game.level;
-        //     const fitness = this.tetri[i].result+(level-1)*1000
-        //     if (this.tetri[i].result > bestScore) {
-        //         bestScore = this.tetri[i].result;
-        //     }
-        //     if (level > highestLevel) {
-        //         highestLevel = level;
-        //     }
-        //     this.tetri[i].setup();
-        //     this.neat.setFitness(fitness, i);
-        // }
-        // console.log(bestScore, highestLevel);
-        // this.neat.doGen();
-        // if (number % 20 === 0) {
-        //     const data = this.neat.export();
-        //     console.log(JSON.stringify(data));
-        // }
-        // this.iteration(number+1);
     }
 }
