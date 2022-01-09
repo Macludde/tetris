@@ -105,6 +105,10 @@ export default class AI {
             // get index of largest value
             this.tetri[i].doAction(decisions[i]);
         }
+        for (let i = 0; i < POP_SIZE; i++) {
+            // get index of largest value
+            this.tetri[i].step();
+        }
 
 
         // console.timeEnd('iteration');
@@ -137,7 +141,7 @@ export default class AI {
         } else {
             setTimeout(() => {
                 this.iteration(number)
-            }, Game.GAME_FRAME_DELAY/2);
+            }, 0);
         }
     }
 }

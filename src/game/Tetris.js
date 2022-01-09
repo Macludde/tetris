@@ -6,7 +6,7 @@ export default class Tetris {
     board;
     game;
 
-    constructor(shouldRender, onGameEnd) {
+    constructor(shouldRender, onGameEnd, stepManually) {
         if (shouldRender) {
             const canvasHolder = document.getElementById("canvas-holder");
             let canvas = document.createElement("canvas");
@@ -16,11 +16,24 @@ export default class Tetris {
             this.ctx = canvas.getContext('2d');
         }
         this.onGameEnd = onGameEnd;
+        this.stepManually = stepManually;
         this.setup();
     }
 
+    step() {
+        this.game.onUpdate();
+    }
+
     setup() {
+        if (!this.stepManually) {
+            this.updateInterval = setInterval(this.step.bind(this), Game.GAME_FRAME_DELAY)
+        }
         this.board = new Board(this.ctx);
-        this.game = new Game(this.board, this.onGameEnd);
+        this.game = new Game(this.board, (result) => {
+            this.onGameEnd(result);
+            if (!this.stepManually) {
+                clearInterval(this.updateInterval);
+            }
+        });
     }
 }

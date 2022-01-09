@@ -11,7 +11,7 @@ export default class AITetris extends ControllableTetris {
     constructor(shouldRender) {
         super(shouldRender, (result) => {
             this.result = result;
-        });
+        }, true);
         this.result = undefined;
     }
 

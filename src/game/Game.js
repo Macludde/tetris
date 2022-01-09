@@ -9,7 +9,7 @@ export default class Game {
     linesCleared = 0;
     static GAME_FRAME_DELAY = 40;
 
-    constructor(board, onGameEnd) {
+    constructor(board, onGameEnd, stepManually) {
         this.board = board;
         this.onGameEnd = onGameEnd;
         this._generateLaterPiece();
@@ -19,8 +19,6 @@ export default class Game {
         this._generateLaterPiece();
         this.isRunning = true;
         
-
-        this.updateInterval = setInterval(this.onUpdate.bind(this), Game.GAME_FRAME_DELAY)
     }
 
     hardDrop()
@@ -62,8 +60,6 @@ export default class Game {
     }
 
     endGame() {
-        clearInterval(this.updateInterval);
-        this.updateInterval = undefined;
         this.isRunning = false;
         this.onGameEnd(this.score);
     }
