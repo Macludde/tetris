@@ -47,7 +47,7 @@ export default class AI {
             mutationMethod: mutate.RANDOM,
             populationSize: POP_SIZE
         }
-        this.neat = new NEAT(this.config, this.gpu);
+        this.neat = new NEAT(this.config);
 
         this.tetri = [];
         this.workers = [];
