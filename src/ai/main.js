@@ -8,7 +8,9 @@ import Game from '../game/Game.js'
 
 
 const MUTATION_RATE = 0.2;
-const POP_SIZE = 150;
+const WORKER_SIZE = 100;
+const CREATURES_PER_WORKER = 10;
+const POP_SIZE = WORKER_SIZE*CREATURES_PER_WORKER;
 
 /**
  * ACTIONS:
@@ -49,7 +51,7 @@ export default class AI {
 
         this.tetri = [];
         this.workers = [];
-        for (let i = 0; i < POP_SIZE; i++) {
+        for (let i = 0; i < WORKER_SIZE; i++) {
             const worker = new Worker('src/ai/worker/Gamer.js', {
                 type: 'classic'
             });
@@ -61,6 +63,7 @@ export default class AI {
     }
 
     async train() {
+        console.time('iteration');
         for (let i = 0; i < Infinity; i++) {
             await this.runIteration(i);
         }
@@ -68,15 +71,12 @@ export default class AI {
 
     async runIteration(number) {
         return new Promise((resolve) => {
-            if (number % 10 === 1) {
-                console.time('iteration');
-            }
             this.results = new Array(POP_SIZE).fill(undefined);
-            for (let i = 0; i < POP_SIZE; i++) {
-                this.workers[i].postMessage({model: this.config.model, genes: this.neat.creatures[i].flattenedGenes});
+            for (let i = 0; i < WORKER_SIZE; i++) {
+                const genes = new Array(CREATURES_PER_WORKER).fill(0).map((_,index) => this.neat.creatures[i+index].flattenedGenes);
+                this.workers[i].postMessage({model: this.config.model, genes });
                 this.workers[i].onmessage = (e) => {
-                    this.results[i] = e.data;
-                    // console.log(e.data)
+                    this.results[i*CREATURES_PER_WORKER+e.data.index] = e.data;
                     // console.log(this.results.every(result => result !== undefined))
                     if (this.results.every(result => result !== undefined)) {
                         this.finishIteration(number);
@@ -102,9 +102,11 @@ export default class AI {
             this.neat.setFitness(fitness, i);
         }
         this.pastTen.push([bestScore, highestLevel]);
-        if (number % 10 === 0) {
+        this.neat.doGen();
+        if (number % 1 === 0) {
 		    console.log('Generation: ' + (number + 1));
             console.timeEnd('iteration');
+            console.time('iteration');
             const average = this.pastTen.reduce((a,b) => ([a[0]+b[0],a[1]+b[1]]))
             console.log('Average Best Score, Highest Level:',average[0]/this.pastTen.length, average[1]/this.pastTen.length); // Best score, highest level. Average from past 10 gens
             this.pastTen = [];
@@ -114,6 +116,5 @@ export default class AI {
                 console.log(JSON.stringify(data));
             }
         }
-        this.neat.doGen();
     }
 }
