@@ -1,29 +1,25 @@
-/*
-	Author: ExtensionShoe
-	Date: 30/08/2019
-	License: MIT
-*/
-
 import Layer from './Layer.js';
 
-function Network(model) { // Neural Network.
-	this.layers = [];
+class Network { // Neural Network.
+	layers = [];
 
-	for (let i = 0; i < model.length; i++) { // Init all the layers.
-		this.layers.push(new Layer(model[i].nodeCount, model[i].type, model[i].activationfunc));
+	constructor(model) {
+		for (let i = 0; i < model.length; i++) { // Init all the layers.
+			this.layers.push(new Layer(model[i].nodeCount, model[i].type, model[i].activationfunc));
+		}
+	
+		for (let i = 0; i < this.layers.length - 1; i++) { // Connect the layers to each other.
+			this.layers[i].connect(this.layers[i + 1].nodes.length);
+		}
 	}
 
-	for (let i = 0; i < this.layers.length - 1; i++) { // Connect the layers to each other.
-		this.layers[i].connect(this.layers[i + 1].nodes.length);
-	}
-
-	this.feedForward = function () { // Feeds forward the network.
+	feedForward() { // Feeds forward the network.
 		for (let i = 0; i < this.layers.length - 1; i++) {
 			this.layers[i].feedForward(this.layers[i + 1]);
 		}
 	}
 
-	this.getWeights = function() {
+	getWeights() {
 		return this.layers.slice(0,-1).map(layer => layer.getWeights());
 	}
 }

@@ -7,18 +7,22 @@ export default class Game {
     currentPiece;
     level = 1;
     linesCleared = 0;
-    static GAME_FRAME_DELAY = 40;
+    static GAME_FRAME_DELAY = 400;
 
-    constructor(board, onGameEnd, stepManually) {
+    constructor(board) {
         this.board = board;
-        this.onGameEnd = onGameEnd;
+        this.setup();
+        
+    }
+
+    setup() {
+        this.board.setup();
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._generateLaterPiece();
         this._setNextPiece();
         this._generateLaterPiece();
         this.isRunning = true;
-        
     }
 
     hardDrop()
@@ -61,7 +65,6 @@ export default class Game {
 
     endGame() {
         this.isRunning = false;
-        this.onGameEnd(this.score);
     }
 
     onPlacement() {

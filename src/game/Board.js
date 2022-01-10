@@ -1,8 +1,8 @@
 import Cell from './Cell.js';
 
 export default class Board {
-    static width = 10;
-    static height = 20;
+    static width = 6;
+    static height = 10;
     static cellCount = this.width*this.height;
     static pixelWidth = this.width*Cell.size;
     static pixelHeight = this.height*Cell.size;
@@ -21,6 +21,15 @@ export default class Board {
             this.cells.push([])
             for (let row = 0; row < Board.height; row++) {
                 this.cells[col].push(new Cell(ctx, col*Cell.size, row*Cell.size))
+            }
+        }
+        this.setup();
+    }
+
+    setup() {
+        for (let col = 0; col < Board.width; col++) {
+            for (let row = 0; row < Board.height; row++) {
+                this.cells[col][row].setup();
             }
         }
     }

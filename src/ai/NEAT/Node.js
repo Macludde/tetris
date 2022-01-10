@@ -1,17 +1,12 @@
-/*
-	Author: ExtensionShoe
-	Date: 30/08/2019
-	License: MIT
-*/
-
-function Node() { // A Node.
-	this.value = 0;
-	this.weights = [];
+class Node { // A Node.
+	value = 0;
+	weights = [];
 
 
-	this.initWeights = function (count) { // Randomly initalize weights.
+	initWeights(count) { // Randomly initalize weights.
+		this.weights = new Array(count);
 		for (let i = 0; i < count; i++) {
-			this.weights.push((Math.random() * 2) - 1);
+			this.weights[i] = (Math.random() * 2) - 1;
 		}
 	}
 }

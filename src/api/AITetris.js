@@ -9,10 +9,13 @@ for (let i = 0; i < pieces.length; i++) {
 export default class AITetris extends ControllableTetris {
 
     constructor(shouldRender) {
-        super(shouldRender, (result) => {
-            this.result = result;
-        }, true);
+        super(shouldRender, undefined, true);
         this.result = undefined;
+    }
+
+    onEnd(result) {
+        super.onEnd(result);
+        this.result = result;
     }
 
     setup() {
@@ -22,8 +25,8 @@ export default class AITetris extends ControllableTetris {
 
     getInputs() {
         const inputs = new Array(12).fill(0)
-        inputs[0] = this.game.currentPiece.x;
-        inputs[1] = this.game.currentPiece.y;
+        inputs[0] = (this.game.currentPiece.x/Board.width)*2 - 1;
+        inputs[1] = this.game.currentPiece.y/Board.height;
         const currentPiece = namesToIndices[this.game.currentPiece.name];
         const rotation = this.game.currentPiece.rotation;
         inputs[2+currentPiece] = 1;

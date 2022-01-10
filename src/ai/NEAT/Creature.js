@@ -1,12 +1,20 @@
 import Network from './Network.js';
 
-function Creature(model) {
-	this.network = new Network(model); // Init the network
+class Creature {
 
-	this.fitness = 0;
-	this.score = 0;
+	static BuildFromFlattened(model, flattenedGenes) {
+		const creature = new Creature(model);
+		creature.setFlattenedGenes(flattenedGenes);
+		return creature;
+	}
+	constructor(model) {
+		this.network = new Network(model); // Init the network
 
-	this.flattenGenes = function () { // Flattens the genes of the creature's genes and returns them as an array.
+		this.fitness = 0;
+		this.score = 0;
+	}
+
+	flattenGenes() { // Flattens the genes of the creature's genes and returns them as an array.
 		let genes = [];
 
 		for (let i = 0; i < this.network.layers.length - 1; i++) {
@@ -21,10 +29,12 @@ function Creature(model) {
 			}
 		}
 
+		this.flattenedGenes = genes;
+
 		return genes;
 	}
 
-	this.setFlattenedGenes = function (genes) { // Sets an array of weights as the creature's genes.
+	setFlattenedGenes(genes) { // Sets an array of weights as the creature's genes.
 		let start = 0;
 		for (let i = 0; i < this.network.layers.length - 1; i++) {
 			for (let w = 0; w < this.network.layers[i].nodes.length; w++) {
@@ -37,19 +47,19 @@ function Creature(model) {
 		}
 	}
 
-	this.feedForward = function () { // Feeds forward the creature's network.
+	feedForward() { // Feeds forward the creature's network.
 		this.network.feedForward();
 	}
 
-	this.getWeights = function() {
+	getWeights() {
 		return this.network.getWeights();
 	}
 
-	this.setInputs = function (inputs) { // Sets the inputs of the creature.
+	setInputs(inputs) { // Sets the inputs of the creature.
 		this.network.layers[0].setValues(inputs);
 	}
 
-	this.decision = function () { 
+	decision() { 
 		let index = -1; 
 		let max = -Infinity;
 		for (let i = 0; i < this.network.layers[this.network.layers.length - 1].nodes.length; i++) {

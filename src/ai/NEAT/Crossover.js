@@ -6,11 +6,11 @@
 
 let crossover = { // Crossover methods.
 	RANDOM: function (genesx, genesy) { // Randomly take genes from parentx or parenty and return newly created genes.
-		let newGenes = [];
+		let newGenes = new Array(genesx.length);
 
 		for (let i = 0; i < genesx.length; i++) {
-			if (Math.random() < 0.5) newGenes.push(genesx[i]);
-			else newGenes.push(genesy[i]);
+			if (Math.random() < 0.5) newGenes[i] = genesx[i];
+			else newGenes[i] = genesy[i];
 		}
 
 		return newGenes;

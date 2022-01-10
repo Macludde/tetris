@@ -17,23 +17,28 @@ export default class Tetris {
         }
         this.onGameEnd = onGameEnd;
         this.stepManually = stepManually;
-        this.setup();
+        this.board = new Board(this.ctx);
+        this.game = new Game(this.board);
     }
 
     step() {
         this.game.onUpdate();
+        if (!this.game.isRunning) {
+            this.onEnd(this.game.score);
+        }
+    }
+
+    onEnd(result) {
+        this.onGameEnd?.(result);
+        if (!this.stepManually) {
+            clearInterval(this.updateInterval);
+        }
     }
 
     setup() {
         if (!this.stepManually) {
             this.updateInterval = setInterval(this.step.bind(this), Game.GAME_FRAME_DELAY)
         }
-        this.board = new Board(this.ctx);
-        this.game = new Game(this.board, (result) => {
-            this.onGameEnd(result);
-            if (!this.stepManually) {
-                clearInterval(this.updateInterval);
-            }
-        });
+        this.game.setup();
     }
 }

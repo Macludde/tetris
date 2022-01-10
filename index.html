@@ -11,29 +11,38 @@
     <script src="https://unpkg.com/gpu.js@2.11.4/dist/gpu-browser.js"></script>
 </head>
 <body>
+    Loaded
     <div id="canvas-holder">
     </div>
     <script type="module">
         import AI from './src/ai/main.js';
-        import Random from './src/api/randomTetris.js';
+        import Random from './src/api/RandomTetris.js';
+        import Keyboard from './src/api/KeyboardTetris.js';
 
         const ai = new AI();
-        /* const run = async () => {
-            console.time(`game`);
-            let promises = [];
-            for (let i = 0; i < 1000; i++) {
-                promises.push(new Promise((res) => {
-                    let random;
-                    random = new Random(true, (result) => {
-                        res(result);
-                    })
-                }));
-            }
-            await Promise.all(promises);
-            console.timeEnd(`game`);
-        }
 
-        run(); */
+
+
+        // const run = async () => {
+        //     console.time(`game`);
+        //     let promises = [];
+        //     for (let i = 0; i < 10; i++) {
+        //         promises.push(new Promise((res) => {
+        //             let random;
+        //             random = new Random(true, (result) => {
+        //                 res(result);
+        //             })
+        //         }));
+        //     }
+        //     await Promise.all(promises);
+        //     console.timeEnd(`game`);
+        // }
+
+        // run();
+        // for (let i = 0; i < 10; i++) {
+        //     new Random(true)
+        // }
+        // new Keyboard();
     </script>
 </body>
 </html>

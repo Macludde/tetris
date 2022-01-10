@@ -7,8 +7,8 @@ import mutate from './NEAT/Mutate.js'
 import Game from '../game/Game.js'
 
 
-const MUTATION_RATE = 0.5;
-const POP_SIZE = 500;
+const MUTATION_RATE = 0.2;
+const POP_SIZE = 150;
 
 /**
  * ACTIONS:
@@ -29,119 +29,91 @@ const POP_SIZE = 500;
 export default class AI {
 
     static INPUT_SIZE = 12+Board.width*Board.height
+    pastTen=[];
 
     constructor() {
-        const layerSizes = [AI.INPUT_SIZE, Math.floor(AI.INPUT_SIZE/2), Math.floor(AI.INPUT_SIZE/2), 6]
-        const config = {
+        this.config = {
             model: [
                 { nodeCount: AI.INPUT_SIZE, type: 'input' },
-                { nodeCount: Math.floor(AI.INPUT_SIZE/2), type: 'hidden', activationfunc: activation.SIGMOID  },
-                { nodeCount: Math.floor(AI.INPUT_SIZE/2), type: 'hidden', activationfunc: activation.SIGMOID  },
-                { nodeCount: 6, type: 'output', activationfunc: activation.SIGMOID }
+                { nodeCount: Math.floor(AI.INPUT_SIZE*0.8), type: 'hidden', activationfunc: 'RELU' },
+                { nodeCount: Math.floor(AI.INPUT_SIZE*0.8), type: 'hidden', activationfunc: 'RELU' },
+                { nodeCount: Math.floor(AI.INPUT_SIZE*0.5), type: 'hidden', activationfunc: 'RELU' },
+                { nodeCount: 6, type: 'output', activationfunc: 'RELU' }
             ],
             mutationRate: MUTATION_RATE,
             crossoverMethod: crossover.RANDOM,
             mutationMethod: mutate.RANDOM,
             populationSize: POP_SIZE
         }
-        this.gpu = new GPU();
-        this.neat = new NEAT(config, this.gpu);
+        this.neat = new NEAT(this.config, this.gpu);
 
         this.tetri = [];
+        this.workers = [];
         for (let i = 0; i < POP_SIZE; i++) {
-            this.tetri.push(new AITetris(true));
+            const worker = new Worker('src/ai/worker/Gamer.js', {
+                type: 'classic'
+            });
+            this.workers.push(worker);
         }
+        console.log('Done with workers')
 
-        // console.log(this.neat.getWeights()[0]);
-
-
-        const getMatrixMult = (layer) => {
-            return this.gpu.createKernel(function(weights, inputs) {
-                let sum = weights[0][this.thread.x]; // Bias
-                for (let j = 1; j < this.constants.previousSize; j++) {
-                    sum += weights[j][this.thread.x] * inputs[j-1];
-                }
-                const sigmoid = (1 / (1 + Math.exp(-sum)))
-                return sigmoid
-            }, {
-                constants: {previousSize: layerSizes[layer-1]},
-                output: [layerSizes[layer]]
-            })
-        }
-
-        this.getActions = (network, inputs) => {
-            let currentValues = inputs;
-            for (let n = 0; n < network.length-1; n++) {
-                // console.log(network[n])
-                currentValues = matrixMultFunctions[n+1](network[n], currentValues);
-                // console.log(currentValues)
-            }
-            return currentValues
-        }
-        
-
-        this.getAllActions = (networks, inputs) => {
-            let values = [];
-            for (let p = 0; p < POP_SIZE; p++) {
-                values.push(this.getActions(networks[p], inputs[p]));
-            }
-
-            const largestValueIndex = values.map(v => v.indexOf(Math.max(...v)));
-            
-            return largestValueIndex
-        }
-
-        console.time('iteration');
-        this.iteration(0)
+        this.train();
     }
 
-    async iteration(number) {
-        for (let i = 0; i < POP_SIZE; i++) {
-            this.neat.setInputs(this.tetri[i].getInputs(), i);
+    async train() {
+        for (let i = 0; i < Infinity; i++) {
+            await this.runIteration(i);
         }
-        this.neat.feedForward();
-        const decisions = this.neat.getDecisions();
-        for (let i = 0; i < POP_SIZE; i++) {
-            // get index of largest value
-            this.tetri[i].doAction(decisions[i]);
-        }
-        for (let i = 0; i < POP_SIZE; i++) {
-            // get index of largest value
-            this.tetri[i].step();
-        }
+    }
 
-
-        // console.timeEnd('iteration');
-        let finish = this.tetri.every(tetri => tetri.result !== undefined);
-        if (finish) {
-            console.timeEnd('iteration');
-            console.log('FINISH ' + number);
-            let bestScore = 0;
-            let highestLevel = 0;
-            for (let i = 0; i < POP_SIZE; i++) {
-                const level = this.tetri[i].game.level;
-                const fitness = this.tetri[i].result+(level-1)*1000
-                if (this.tetri[i].result > bestScore) {
-                    bestScore = this.tetri[i].result;
-                }
-                if (level > highestLevel) {
-                    highestLevel = level;
-                }
-                this.tetri[i].setup();
-                this.neat.setFitness(fitness, i);
+    async runIteration(number) {
+        return new Promise((resolve) => {
+            if (number % 10 === 1) {
+                console.time('iteration');
             }
-            console.log(bestScore, highestLevel);
-            this.neat.doGen();
-            if (number % 100 === 0) {
+            this.results = new Array(POP_SIZE).fill(undefined);
+            for (let i = 0; i < POP_SIZE; i++) {
+                this.workers[i].postMessage({model: this.config.model, genes: this.neat.creatures[i].flattenedGenes});
+                this.workers[i].onmessage = (e) => {
+                    this.results[i] = e.data;
+                    // console.log(e.data)
+                    // console.log(this.results.every(result => result !== undefined))
+                    if (this.results.every(result => result !== undefined)) {
+                        this.finishIteration(number);
+                        resolve();
+                    }
+                }
+            }
+        })
+    }
+
+    finishIteration(number) {
+        let bestScore = 0;
+        let highestLevel = 0;
+        for (let i = 0; i < POP_SIZE; i++) {
+            const {level, result} = this.results[i];
+            const fitness = result+(level-1)*1000
+            if (result > bestScore) {
+                bestScore = result;
+            }
+            if (level > highestLevel) {
+                highestLevel = level;
+            }
+            this.neat.setFitness(fitness, i);
+        }
+        this.pastTen.push([bestScore, highestLevel]);
+        if (number % 10 === 0) {
+		    console.log('Generation: ' + (number + 1));
+            console.timeEnd('iteration');
+            const average = this.pastTen.reduce((a,b) => ([a[0]+b[0],a[1]+b[1]]))
+            console.log('Average Best Score, Highest Level:',average[0]/this.pastTen.length, average[1]/this.pastTen.length); // Best score, highest level. Average from past 10 gens
+            this.pastTen = [];
+
+            if (number % 100 === 0 && number > 0) {
                 const data = this.neat.export();
                 console.log(JSON.stringify(data));
             }
-            console.time('iteration');
-            this.iteration(number+1);
-        } else {
-            setTimeout(() => {
-                this.iteration(number)
-            }, 0);
         }
+        this.neat.doGen();
     }
 }

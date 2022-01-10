@@ -13,9 +13,11 @@ export default class Cell {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
-        if (ctx !== undefined) {
-            this.clear()
-        }
+        this.setup();
+    }
+
+    setup() {
+        this.clear()
     }
 
     /**
@@ -46,7 +48,9 @@ export default class Cell {
      */
     clear() {
         this.isOccupied = false;
-        this.color = Cell.DEFAULT_COLOR;
-        this._draw()
+        if (this.ctx !== undefined) {
+            this.color = Cell.DEFAULT_COLOR;
+            this._draw()
+        }
     }
 }

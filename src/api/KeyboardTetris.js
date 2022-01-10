@@ -4,8 +4,8 @@ export default class KeyboardTetris extends ControllableTetris {
     keydownHandler;
     onGameEnd;
 
-    constructor(shouldRender, onGameEnd) {
-        super(shouldRender, (result) => {
+    constructor(onGameEnd) {
+        super(true, (result) => {
             this.onGameEnd(result);
             document.removeEventListener('keydown', this.keydownHandler);
         });
@@ -28,6 +28,12 @@ export default class KeyboardTetris extends ControllableTetris {
             }
         }
         document.addEventListener('keydown', this.keydownHandler.bind(this));
+        this.setup();
+    }
+
+    onEnd(result) {
+        super.onEnd(result);
+        this.setup();
     }
     
 }

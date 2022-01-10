@@ -4,12 +4,16 @@ export default class RandomTetris extends ControllableTetris {
     interval;
 
     constructor(shouldRender, onGameEnd) {
-        super(shouldRender, (result) => {
-            clearInterval(this.interval);
-            onGameEnd?.(result);
-        });
+        super(shouldRender, undefined, true);
+        this.onGameEnd = onGameEnd;
+        this.setup();
+    }
 
-        
+    onEnd(result) {
+        super.onEnd(result);
+        clearInterval(this.interval);
+        this.setup();
+        this.onGameEnd?.(result);
     }
 
     setup() {
@@ -18,8 +22,8 @@ export default class RandomTetris extends ControllableTetris {
     }
 
     doAction() {
-        // const action = Math.floor(Math.random() * 5);
-        const action = 4;
+        const action = Math.floor(Math.random() * 5);
+        // const action = 4; // Always hard drop
         switch (action) {
             case 0:
                 this.rotate();
@@ -37,6 +41,7 @@ export default class RandomTetris extends ControllableTetris {
                 this.hardDrop();
                 break;
         }
+        this.step();
     }
     
 }

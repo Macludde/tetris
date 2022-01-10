@@ -1,6 +1,6 @@
 const clears = [100,300,500,800];
 
-export default class Pieces {
+export default class Score {
     static clearedRow(amountOfRows) {
         return amountOfRows * amountOfRows * 10;
     }
